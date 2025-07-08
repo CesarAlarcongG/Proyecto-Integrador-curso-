@@ -44,7 +44,7 @@ public class Administrador implements UserDetails {
     @Column(name = "contrasena", nullable = false)
     private String contrasena;
 
-    @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
     private Set<Actividad> actividades;
 
     // Roles/permisos del administrador

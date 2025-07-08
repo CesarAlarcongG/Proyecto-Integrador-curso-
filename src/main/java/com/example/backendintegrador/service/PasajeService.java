@@ -96,7 +96,7 @@ public class PasajeService {
                 .orElseThrow(() -> new PasajeNotFoundException("Pasaje no encontrado con id: " + id));
 
         // Liberar asientos
-        List<UsuarioAsiento> usuarioAsientos = usuarioAsientoRepository.findByPasajeId(id);
+        List<UsuarioAsiento> usuarioAsientos = usuarioAsientoRepository.findByPasajeIdPasaje(id);
         for (UsuarioAsiento usuarioAsiento : usuarioAsientos) {
             Asiento asiento = usuarioAsiento.getAsiento();
             asiento.setEstado("disponible");
@@ -104,7 +104,7 @@ public class PasajeService {
         }
 
         // Eliminar relaciones Usuario-Asiento
-        usuarioAsientoRepository.deleteByPasajeId(id);
+        usuarioAsientoRepository.deleteByPasajeIdPasaje(id);
 
         // Eliminar pasaje
         pasajeRepository.delete(pasaje);

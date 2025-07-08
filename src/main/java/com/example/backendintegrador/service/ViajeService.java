@@ -85,7 +85,7 @@ public class ViajeService {
     }
 
     public List<ViajeDTO> buscarViajesPorFechaYRuta(LocalDate fecha, Integer idRuta) {
-        List<Viaje> viajes = viajeRepository.findByFechaSalidaAndRutaId(fecha, idRuta);
+        List<Viaje> viajes = viajeRepository.findByFechaSalidaAndIdRutas(fecha, idRuta);
         return viajes.stream()
                 .map(viaje -> modelMapper.map(viaje, ViajeDTO.class))
                 .collect(Collectors.toList());

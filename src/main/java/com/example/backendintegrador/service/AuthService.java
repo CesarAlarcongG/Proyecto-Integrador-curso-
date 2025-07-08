@@ -39,7 +39,7 @@ public class AuthService {
             String token = jwtTokenProvider.generateToken(authentication);
 
             Administrador administrador = administradorRepository.findByCorreo(loginDTO.getCorreo())
-                    .orElseThrow(() -> new UnauthorizedException("Credenciales inválidas"));
+                    .orElseThrow(() -> new UnauthorizedException("No hay un ususario con este correo "));
 
             return new AuthResponseDTO(
                     token,
@@ -51,7 +51,7 @@ public class AuthService {
                     "ADMIN"
             );
         } catch (Exception e) {
-            throw new UnauthorizedException("Credenciales inválidas");
+            throw new UnauthorizedException("Credenciales inválidas" +e);
         }
     }
 }

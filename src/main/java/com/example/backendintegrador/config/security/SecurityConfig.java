@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/administradores/**").permitAll()
                         .requestMatchers("/api/usuarios/**").permitAll()
                         .requestMatchers("/api/pasajes/**").permitAll()
                         .requestMatchers("/api/viajes/buscar").permitAll()
@@ -60,7 +61,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService); // <-- Aquí ahora pasas ambos
+        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
     }
 
 }

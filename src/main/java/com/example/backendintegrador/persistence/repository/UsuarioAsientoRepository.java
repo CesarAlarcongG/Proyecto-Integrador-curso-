@@ -1,13 +1,15 @@
 package com.example.backendintegrador.persistence.repository;
 
 import com.example.backendintegrador.persistence.entity.UsuarioAsiento;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface UsuarioAsientoRepository {
-    void save(UsuarioAsiento usuarioAsiento);
+@Repository
+public interface UsuarioAsientoRepository extends JpaRepository<UsuarioAsiento, Integer> {
 
-    List<UsuarioAsiento> findByPasajeId(Integer id);
+    List<UsuarioAsiento> findByPasajeIdPasaje(Integer id);
 
-    void deleteByPasajeId(Integer id);
+    void deleteByPasajeIdPasaje(Integer id);
 }

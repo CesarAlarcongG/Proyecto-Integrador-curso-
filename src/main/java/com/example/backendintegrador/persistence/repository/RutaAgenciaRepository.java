@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RutaAgenciaRepository extends JpaRepository<RutaAgencia, RutaAgencia.RutaAgenciaId> {
-    void deleteByRutaId(Integer idRuta);
+    void deleteByRutaIdRuta(Integer idRuta);
 }

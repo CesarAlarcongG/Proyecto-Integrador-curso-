@@ -12,8 +12,5 @@ import java.util.List;
 @Repository
 public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
 
-    @Query("SELECT v FROM Viaje v WHERE v.fechaSalida = :fecha AND v.ruta.idRuta = :rutaId")
-    List<Viaje> findByFechaAndRuta(@Param("fecha") LocalDate fecha, @Param("rutaId") Integer rutaId);
-
-    List<Viaje> findByFechaSalidaAndRutaId(LocalDate fechaSalida, Integer rutaId);
+    List<Viaje> findByFechaSalidaAndIdRutas(LocalDate fechaSalida, Integer rutaId);
 }

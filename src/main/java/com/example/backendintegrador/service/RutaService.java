@@ -103,7 +103,7 @@ public class RutaService {
                 rutaDTO.getAgenciasIds().size() == rutaDTO.getOrdenAgencias().size()) {
 
             // Eliminar relaciones existentes
-            rutaAgenciaRepository.deleteByRutaId(updatedRuta.getIdRuta());
+            rutaAgenciaRepository.deleteByRutaIdRuta(updatedRuta.getIdRuta());
 
             // Crear nuevas relaciones
             List<RutaAgencia> rutaAgencias = new ArrayList<>();
