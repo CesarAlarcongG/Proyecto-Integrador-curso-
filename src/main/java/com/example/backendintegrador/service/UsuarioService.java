@@ -49,6 +49,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new UsuarioNotFoundException("Usuario no encontrado con id: " + id));
 
         modelMapper.map(usuarioDTO, existingUsuario);
+        existingUsuario.setIdUsuario(id);
         Usuario updatedUsuario = usuarioRepository.save(existingUsuario);
         return modelMapper.map(updatedUsuario, UsuarioDTO.class);
     }

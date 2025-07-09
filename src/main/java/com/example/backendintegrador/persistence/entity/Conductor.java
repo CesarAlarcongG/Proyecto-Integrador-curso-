@@ -1,16 +1,17 @@
 package com.example.backendintegrador.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
 @Entity
 @Table(name = "conductor")
 @Data
+@Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class Conductor {
@@ -38,5 +39,6 @@ public class Conductor {
     private String numeroLicenciaConduccion;
 
     @OneToMany(mappedBy = "conductor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // Buses son el lado "hijo"
     private Set<Bus> buses;
 }

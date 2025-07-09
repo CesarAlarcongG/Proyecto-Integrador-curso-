@@ -1,5 +1,6 @@
 package com.example.backendintegrador.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -45,6 +46,7 @@ public class Administrador implements UserDetails {
     private String contrasena;
 
     @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
+    @JsonManagedReference // Actividades son el lado "hijo"
     private Set<Actividad> actividades;
 
     // Roles/permisos del administrador

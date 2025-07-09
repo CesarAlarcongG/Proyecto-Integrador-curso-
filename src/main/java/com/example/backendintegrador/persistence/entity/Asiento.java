@@ -1,5 +1,7 @@
 package com.example.backendintegrador.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -41,10 +43,12 @@ public class Asiento {
     @Column(name = "estado", nullable = false)
     private String estado; // disponible, ocupado, reservado
 
-    @OneToMany(mappedBy = "asiento", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UsuarioAsiento> usuarioAsientos;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_bus")
+    @JsonBackReference // Bus es el lado "padre"
     private Bus bus;
+
+    @OneToMany(mappedBy = "asiento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // UsuarioAsientos son el lado "hijo"
+    private Set<UsuarioAsiento> usuarioAsientos;
 }

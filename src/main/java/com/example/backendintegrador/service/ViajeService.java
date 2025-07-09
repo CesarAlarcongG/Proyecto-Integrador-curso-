@@ -70,12 +70,17 @@ public class ViajeService {
         Bus bus = busRepository.findById(viajeDTO.getIdCarro())
                 .orElseThrow(() -> new BusNotFoundException("Bus no encontrado con id: " + viajeDTO.getIdCarro()));
 
-        modelMapper.map(viajeDTO, existingViaje);
+        // Mapea manualmente los campos para evitar sobrescribir IDs de relaciones
+        existingViaje.setHoraSalida(viajeDTO.getHoraSalida());
+        existingViaje.setFechaSalida(viajeDTO.getFechaSalida());
+        existingViaje.setCosto(viajeDTO.getCosto());
         existingViaje.setRuta(ruta);
         existingViaje.setBus(bus);
+
         Viaje updatedViaje = viajeRepository.save(existingViaje);
         return modelMapper.map(updatedViaje, ViajeDTO.class);
     }
+
 
     public void deleteViaje(Integer id) {
         if (!viajeRepository.existsById(id)) {
@@ -85,7 +90,7 @@ public class ViajeService {
     }
 
     public List<ViajeDTO> buscarViajesPorFechaYRuta(LocalDate fecha, Integer idRuta) {
-        List<Viaje> viajes = viajeRepository.findByFechaSalidaAndIdRutas(fecha, idRuta);
+        List<Viaje> viajes = viajeRepository.findByFechaSalidaAndRuta_IdRuta(fecha, idRuta);
         return viajes.stream()
                 .map(viaje -> modelMapper.map(viaje, ViajeDTO.class))
                 .collect(Collectors.toList());

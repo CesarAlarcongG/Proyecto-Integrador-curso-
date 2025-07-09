@@ -1,5 +1,6 @@
 package com.example.backendintegrador.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -36,5 +37,6 @@ public class Agencia {
     private String referencia;
 
     @OneToMany(mappedBy = "agencia", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // RutaAgencias son el lado "hijo"
     private Set<RutaAgencia> rutaAgencias;
 }

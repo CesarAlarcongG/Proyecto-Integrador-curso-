@@ -1,7 +1,7 @@
 package com.example.backendintegrador.service;
 
 
-import com.example.backendintegrador.dto.RutaDTO;
+import com.example.backendintegrador.dto.*;
 import com.example.backendintegrador.exception.ActividadNotFoundException;
 import com.example.backendintegrador.exception.AgenciaNotFoundException;
 import com.example.backendintegrador.exception.RutaNotFoundException;
@@ -18,9 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class RutaService {
@@ -40,10 +40,12 @@ public class RutaService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private ActividadService actividadService;
+
     @Transactional
     public RutaDTO saveRuta(RutaDTO rutaDTO) {
-        Actividad actividad = actividadRepository.findById(rutaDTO.getIdActividad())
-                .orElseThrow(() -> new ActividadNotFoundException("Actividad no encontrada con id: " + rutaDTO.getIdActividad()));
+        Actividad actividad = actividadService.generarActividad(rutaDTO.getIdAdministrador(), "El administrador con id"+ rutaDTO.getIdAdministrador()+" generó una nueva ruta");
 
         Ruta ruta = modelMapper.map(rutaDTO, Ruta.class);
         ruta.setActividad(actividad);
@@ -75,15 +77,88 @@ public class RutaService {
     }
 
     public List<RutaDTO> getAllRutas() {
-        return rutaRepository.findAll().stream()
-                .map(ruta -> modelMapper.map(ruta, RutaDTO.class))
-                .collect(Collectors.toList());
+        List<Ruta> rutas = rutaRepository.findAll(); // o findAllWithRelations() con JOIN FETCH
+
+        return rutas.stream().map(ruta -> {
+            RutaDTO dto = modelMapper.map(ruta, RutaDTO.class);
+
+            // Obtener agencias relacionadas a esta ruta
+            List<AgenciaDTO> agenciaDTOS = ruta.getRutaAgencias().stream()
+                    .map(rutaAgencia -> {
+                        Agencia agencia = rutaAgencia.getAgencia();
+
+                        AgenciaDTO agenciaDTO = new AgenciaDTO();
+                        agenciaDTO.setIdAgencia(agencia.getIdAgencia());
+                        agenciaDTO.setDepartamento(agencia.getDepartamento());
+                        agenciaDTO.setProvincia(agencia.getProvincia());
+                        agenciaDTO.setDireccion(agencia.getDireccion());
+                        agenciaDTO.setReferencia(agencia.getReferencia());
+                        agenciaDTO.setOrden(rutaAgencia.getOrden());
+
+                        return agenciaDTO;
+                    })
+                    .collect(Collectors.toList());
+
+            dto.setAgenciaDTOS(agenciaDTOS);
+
+            // Setear agenciasIds y ordenAgencias si deseas también
+            dto.setAgenciasIds(agenciaDTOS.stream()
+                    .map(AgenciaDTO::getIdAgencia)
+                    .collect(Collectors.toList()));
+
+            dto.setOrdenAgencias(agenciaDTOS.stream()
+                    .map(AgenciaDTO::getOrden)
+                    .collect(Collectors.toList()));
+
+            // Setear el id del administrador (evitando posibles null)
+            if (ruta.getActividad() != null && ruta.getActividad().getAdministrador() != null) {
+                dto.setIdAdministrador(ruta.getActividad().getAdministrador().getIdAdministrador());
+            }
+
+            return dto;
+        }).collect(Collectors.toList());
     }
 
-    public RutaDTO getRutaById(Integer id) {
-        Ruta ruta = rutaRepository.findById(id)
-                .orElseThrow(() -> new RutaNotFoundException("Ruta no encontrada con id: " + id));
-        return modelMapper.map(ruta, RutaDTO.class);
+    public RutaDTO getRutaById(Integer idRuta) {
+        Ruta ruta = rutaRepository.findById(idRuta)
+                .orElseThrow(() -> new RuntimeException("Ruta no encontrada con ID: " + idRuta));
+
+        RutaDTO dto = modelMapper.map(ruta, RutaDTO.class);
+
+        // Obtener agencias relacionadas a esta ruta
+        List<AgenciaDTO> agenciaDTOS = ruta.getRutaAgencias().stream()
+                .map(rutaAgencia -> {
+                    Agencia agencia = rutaAgencia.getAgencia();
+
+                    AgenciaDTO agenciaDTO = new AgenciaDTO();
+                    agenciaDTO.setIdAgencia(agencia.getIdAgencia());
+                    agenciaDTO.setDepartamento(agencia.getDepartamento());
+                    agenciaDTO.setProvincia(agencia.getProvincia());
+                    agenciaDTO.setDireccion(agencia.getDireccion());
+                    agenciaDTO.setReferencia(agencia.getReferencia());
+                    agenciaDTO.setOrden(rutaAgencia.getOrden());
+
+                    return agenciaDTO;
+                })
+                .collect(Collectors.toList());
+
+        dto.setAgenciaDTOS(agenciaDTOS);
+
+        // Setear agenciasIds y ordenAgencias si deseas también
+        dto.setAgenciasIds(agenciaDTOS.stream()
+                .map(AgenciaDTO::getIdAgencia)
+                .collect(Collectors.toList()));
+
+        dto.setOrdenAgencias(agenciaDTOS.stream()
+                .map(AgenciaDTO::getOrden)
+                .collect(Collectors.toList()));
+
+        // Setear el id del administrador (evitando posibles null)
+        if (ruta.getActividad() != null && ruta.getActividad().getAdministrador() != null) {
+            dto.setIdAdministrador(ruta.getActividad().getAdministrador().getIdAdministrador());
+        }
+
+        return dto;
     }
 
     @Transactional
@@ -91,8 +166,7 @@ public class RutaService {
         Ruta existingRuta = rutaRepository.findById(id)
                 .orElseThrow(() -> new RutaNotFoundException("Ruta no encontrada con id: " + id));
 
-        Actividad actividad = actividadRepository.findById(rutaDTO.getIdActividad())
-                .orElseThrow(() -> new ActividadNotFoundException("Actividad no encontrada con id: " + rutaDTO.getIdActividad()));
+        Actividad actividad = actividadService.generarActividad(rutaDTO.getIdAdministrador(), "El administrador con id"+ rutaDTO.getIdAdministrador()+" actualizó la ruta");
 
         modelMapper.map(rutaDTO, existingRuta);
         existingRuta.setActividad(actividad);
@@ -133,4 +207,68 @@ public class RutaService {
         }
         rutaRepository.deleteById(id);
     }
+
+
+    @Transactional(readOnly = true)
+    public List<Ruta> obtenerTodasLasRutasConInformacionCompleta() {
+        return rutaRepository.findAllWithRelations();
+    }
+
+    // Método para transformar las entidades a DTOs si es necesario
+    public List<RutaDTO> obtenerTodasLasRutasDTO() {
+        List<Ruta> rutas = obtenerTodasLasRutasConInformacionCompleta();
+        return rutas.stream().map(this::convertirADTO).collect(Collectors.toList());
+    }
+
+    private RutaDTO convertirADTO(Ruta ruta) {
+        RutaDTO dto = new RutaDTO();
+        dto.setIdRuta(ruta.getIdRuta());
+        dto.setNombre(ruta.getNombre());
+        /**
+        // Convertir actividad
+        if (ruta.getActividad() != null) {
+            ActividadDTO actividadDTO = new ActividadDTO();
+            actividadDTO.setIdActividad(ruta.getActividad().getIdActividad());
+            actividadDTO.setFecha(ruta.getActividad().getFecha());
+            actividadDTO.setHora(ruta.getActividad().getHora());
+            actividadDTO.setDescripcion(ruta.getActividad().getDescripcion());
+            dto.setActividad(actividadDTO);
+        }
+         */
+
+        // Convertir agencias con su orden
+        if (ruta.getRutaAgencias() != null) {
+            List<AgenciaDTO> agencias = ruta.getRutaAgencias().stream()
+                    .map(ra -> {
+                        AgenciaDTO agenciaDTO = new AgenciaDTO();
+                        agenciaDTO.setIdAgencia(ra.getAgencia().getIdAgencia());
+                        agenciaDTO.setDepartamento(ra.getAgencia().getDepartamento());
+                        agenciaDTO.setOrden(ra.getOrden());
+                        return agenciaDTO;
+                    })
+                    .sorted(Comparator.comparing(AgenciaDTO::getOrden))
+                    .collect(Collectors.toList());
+            dto.setAgenciaDTOS(agencias);
+        }
+        /**
+        // Convertir viajes
+        if (ruta.getViajes() != null) {
+            List<ViajeDTO> viajes = ruta.getViajes().stream()
+                    .map(v -> {
+                        ViajeDTO viajeDTO = new ViajeDTO();
+                        viajeDTO.setHoraSalida(v.getHoraSalida());
+                        viajeDTO.setFechaSalida(v.getFechaSalida());
+                        viajeDTO.setCosto(v.getCosto());
+                        // Info del bus si es necesario
+                        return viajeDTO;
+                    })
+                    .collect(Collectors.toList());
+            dto.setViajes(viajes);
+        }
+         */
+
+        return dto;
+    }
+
+
 }

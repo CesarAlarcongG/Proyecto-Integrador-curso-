@@ -1,17 +1,18 @@
 package com.example.backendintegrador.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
 @Entity
 @Table(name = "ruta")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Ruta {
@@ -30,7 +31,8 @@ public class Ruta {
     @JoinColumn(name = "id_actividad", nullable = false)
     private Actividad actividad;
 
-    @OneToMany(mappedBy = "ruta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "ruta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private Set<RutaAgencia> rutaAgencias;
 
     @OneToMany(mappedBy = "ruta", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -38,4 +40,5 @@ public class Ruta {
 
     @OneToMany(mappedBy = "ruta", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Pasaje> pasajes;
+
 }

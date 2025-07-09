@@ -1,5 +1,7 @@
 package com.example.backendintegrador.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -27,18 +29,22 @@ public class Pasaje {
     @NotNull(message = "El usuario es obligatorio")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
+    @JsonBackReference // Usuario es el lado "padre"
     private Usuario usuario;
 
     @NotNull(message = "La ruta es obligatoria")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ruta", nullable = false)
+    @JsonBackReference // Ruta es el lado "padre"
     private Ruta ruta;
 
     @NotNull(message = "El viaje es obligatorio")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_viaje", nullable = false)
+    @JsonBackReference // Viaje es el lado "padre"
     private Viaje viaje;
 
     @OneToMany(mappedBy = "pasaje", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // UsuarioAsientos son el lado "hijo"
     private Set<UsuarioAsiento> usuarioAsientos;
 }

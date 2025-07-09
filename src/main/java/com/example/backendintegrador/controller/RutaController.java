@@ -1,6 +1,8 @@
 package com.example.backendintegrador.controller;
 
 import com.example.backendintegrador.dto.RutaDTO;
+import com.example.backendintegrador.dto.RutaResponseDTO;
+import com.example.backendintegrador.persistence.entity.Ruta;
 import com.example.backendintegrador.service.RutaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,7 @@ public class RutaController {
         return ResponseEntity.ok(savedRuta);
     }
 
-    @GetMapping
+    @GetMapping("/obtenertodos")
     public ResponseEntity<List<RutaDTO>> getAllRutas() {
         List<RutaDTO> rutas = rutaService.getAllRutas();
         return ResponseEntity.ok(rutas);

@@ -18,9 +18,11 @@ public class RutaDTO {
     @NotBlank(message = "El nombre de la ruta es obligatorio")
     private String nombre;
 
-    @NotNull(message = "La actividad es obligatoria")
-    private Integer idActividad;
+    private Integer idAdministrador;
 
     private List<Integer> agenciasIds;
     private List<Integer> ordenAgencias;
+
+    private List<AgenciaDTO> agenciaDTOS;
+
 }

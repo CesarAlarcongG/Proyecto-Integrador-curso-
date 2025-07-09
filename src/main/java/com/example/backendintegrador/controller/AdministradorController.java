@@ -27,6 +27,11 @@ public class AdministradorController {
         List<AdministradorDTO> administradores = administradorService.getAllAdministradores();
         return ResponseEntity.ok(administradores);
     }
+    @GetMapping("/correo/{correo}")
+    public ResponseEntity<AdministradorDTO> getAdministradorByCorreo(@PathVariable String correo) {
+        AdministradorDTO administrador = administradorService.getAdministradorByCorreo(correo);
+        return ResponseEntity.ok(administrador);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<AdministradorDTO> getAdministradorById(@PathVariable Integer id) {
@@ -34,11 +39,6 @@ public class AdministradorController {
         return ResponseEntity.ok(administrador);
     }
 
-    @GetMapping("/correo/{correo}")
-    public ResponseEntity<AdministradorDTO> getAdministradorByCorreo(@PathVariable String correo) {
-        AdministradorDTO administrador = administradorService.getAdministradorByCorreo(correo);
-        return ResponseEntity.ok(administrador);
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<AdministradorDTO> updateAdministrador(@PathVariable Integer id, @Valid @RequestBody AdministradorDTO administradorDTO) {

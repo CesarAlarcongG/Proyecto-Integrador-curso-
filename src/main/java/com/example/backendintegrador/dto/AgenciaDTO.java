@@ -22,4 +22,6 @@ public class AgenciaDTO {
     private String direccion;
 
     private String referencia;
+
+    private int orden;
 }

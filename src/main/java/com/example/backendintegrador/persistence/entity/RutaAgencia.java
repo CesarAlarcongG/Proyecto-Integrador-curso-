@@ -1,5 +1,6 @@
 package com.example.backendintegrador.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class RutaAgencia {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idRuta")
     @JoinColumn(name = "id_ruta")
+    @JsonBackReference
     private Ruta ruta;
 
     @ManyToOne(fetch = FetchType.LAZY)
