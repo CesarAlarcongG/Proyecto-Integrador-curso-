@@ -30,4 +30,7 @@ public class ViajeDTO {
 
     @NotNull(message = "El bus es obligatorio")
     private Integer idCarro;
+
+    private BusDTO busDTO;
+    private RutaDTO rutaDTO;
 }

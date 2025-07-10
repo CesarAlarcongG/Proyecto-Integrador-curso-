@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class RutaService {
@@ -52,8 +51,7 @@ public class RutaService {
         Ruta savedRuta = rutaRepository.save(ruta);
 
         // Guardar relaciones Ruta-Agencia
-        if (rutaDTO.getAgenciasIds() != null && rutaDTO.getOrdenAgencias() != null &&
-                rutaDTO.getAgenciasIds().size() == rutaDTO.getOrdenAgencias().size()) {
+        if (rutaDTO.getAgenciasIds() != null ) {
 
             List<RutaAgencia> rutaAgencias = new ArrayList<>();
             for (int i = 0; i < rutaDTO.getAgenciasIds().size(); i++) {
@@ -65,7 +63,7 @@ public class RutaService {
                 rutaAgencia.setId(new RutaAgencia.RutaAgenciaId(savedRuta.getIdRuta(), agencia.getIdAgencia()));
                 rutaAgencia.setRuta(savedRuta);
                 rutaAgencia.setAgencia(agencia);
-                rutaAgencia.setOrden(rutaDTO.getOrdenAgencias().get(i));
+                rutaAgencia.setOrden(i);
 
                 rutaAgencias.add(rutaAgencia);
             }
@@ -77,16 +75,21 @@ public class RutaService {
     }
 
     public List<RutaDTO> getAllRutas() {
-        List<Ruta> rutas = rutaRepository.findAll(); // o findAllWithRelations() con JOIN FETCH
+        List<Ruta> rutas = rutaRepository.findAll();
 
         return rutas.stream().map(ruta -> {
             RutaDTO dto = modelMapper.map(ruta, RutaDTO.class);
 
-            // Obtener agencias relacionadas a esta ruta
-            List<AgenciaDTO> agenciaDTOS = ruta.getRutaAgencias().stream()
+            // Ordenar rutaAgencias por el campo 'orden'
+            List<RutaAgencia> rutaAgenciasOrdenadas = ruta.getRutaAgencias().stream()
+                    .sorted(Comparator.comparingInt(RutaAgencia::getOrden))
+                    .collect(Collectors.toList());
+
+
+
+            List<AgenciaDTO> agenciaDTOS = rutaAgenciasOrdenadas.stream()
                     .map(rutaAgencia -> {
                         Agencia agencia = rutaAgencia.getAgencia();
-
                         AgenciaDTO agenciaDTO = new AgenciaDTO();
                         agenciaDTO.setIdAgencia(agencia.getIdAgencia());
                         agenciaDTO.setDepartamento(agencia.getDepartamento());
@@ -94,23 +97,20 @@ public class RutaService {
                         agenciaDTO.setDireccion(agencia.getDireccion());
                         agenciaDTO.setReferencia(agencia.getReferencia());
                         agenciaDTO.setOrden(rutaAgencia.getOrden());
-
                         return agenciaDTO;
                     })
                     .collect(Collectors.toList());
 
             dto.setAgenciaDTOS(agenciaDTOS);
 
-            // Setear agenciasIds y ordenAgencias si deseas también
-            dto.setAgenciasIds(agenciaDTOS.stream()
-                    .map(AgenciaDTO::getIdAgencia)
-                    .collect(Collectors.toList()));
+            // Extraer solo IDs de las agencias
+            dto.setAgenciasIds(
+                    agenciaDTOS.stream()
+                            .map(AgenciaDTO::getIdAgencia)
+                            .collect(Collectors.toList())
+            );
 
-            dto.setOrdenAgencias(agenciaDTOS.stream()
-                    .map(AgenciaDTO::getOrden)
-                    .collect(Collectors.toList()));
 
-            // Setear el id del administrador (evitando posibles null)
             if (ruta.getActividad() != null && ruta.getActividad().getAdministrador() != null) {
                 dto.setIdAdministrador(ruta.getActividad().getAdministrador().getIdAdministrador());
             }
@@ -149,9 +149,7 @@ public class RutaService {
                 .map(AgenciaDTO::getIdAgencia)
                 .collect(Collectors.toList()));
 
-        dto.setOrdenAgencias(agenciaDTOS.stream()
-                .map(AgenciaDTO::getOrden)
-                .collect(Collectors.toList()));
+
 
         // Setear el id del administrador (evitando posibles null)
         if (ruta.getActividad() != null && ruta.getActividad().getAdministrador() != null) {
@@ -173,8 +171,7 @@ public class RutaService {
         Ruta updatedRuta = rutaRepository.save(existingRuta);
 
         // Actualizar relaciones Ruta-Agencia
-        if (rutaDTO.getAgenciasIds() != null && rutaDTO.getOrdenAgencias() != null &&
-                rutaDTO.getAgenciasIds().size() == rutaDTO.getOrdenAgencias().size()) {
+        if (rutaDTO.getAgenciasIds() != null ) {
 
             // Eliminar relaciones existentes
             rutaAgenciaRepository.deleteByRutaIdRuta(updatedRuta.getIdRuta());
@@ -190,7 +187,7 @@ public class RutaService {
                 rutaAgencia.setId(new RutaAgencia.RutaAgenciaId(updatedRuta.getIdRuta(), agencia.getIdAgencia()));
                 rutaAgencia.setRuta(updatedRuta);
                 rutaAgencia.setAgencia(agencia);
-                rutaAgencia.setOrden(rutaDTO.getOrdenAgencias().get(i));
+                rutaAgencia.setOrden(i++);
 
                 rutaAgencias.add(rutaAgencia);
             }

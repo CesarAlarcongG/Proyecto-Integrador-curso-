@@ -22,6 +22,5 @@ public class AdministradorDTO {
     @Email(message = "El correo debe ser válido")
     private String correo;
 
-    @NotBlank(message = "La contraseña es obligatoria")
     private String contrasena;
 }

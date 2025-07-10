@@ -65,10 +65,15 @@ public class AdministradorService {
             throw new DuplicateCorreoException("Ya existe un administrador con el correo: " + administradorDTO.getCorreo());
         }
 
-        modelMapper.map(administradorDTO, existingAdministrador);
+        existingAdministrador.setNombre(administradorDTO.getNombre());
+        existingAdministrador.setApellido(administradorDTO.getApellido());
+        existingAdministrador.setCorreo(administradorDTO.getCorreo());
+
+        // Solo cambia la contraseña si se envía
         if (administradorDTO.getContrasena() != null && !administradorDTO.getContrasena().isEmpty()) {
             existingAdministrador.setContrasena(passwordEncoder.encode(administradorDTO.getContrasena()));
         }
+
         Administrador updatedAdministrador = administradorRepository.save(existingAdministrador);
         return modelMapper.map(updatedAdministrador, AdministradorDTO.class);
     }

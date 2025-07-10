@@ -1,6 +1,8 @@
 package com.example.backendintegrador.service;
 
 
+import com.example.backendintegrador.dto.BusDTO;
+import com.example.backendintegrador.dto.RutaDTO;
 import com.example.backendintegrador.dto.ViajeDTO;
 import com.example.backendintegrador.exception.BusNotFoundException;
 import com.example.backendintegrador.exception.RutaNotFoundException;
@@ -50,7 +52,34 @@ public class ViajeService {
 
     public List<ViajeDTO> getAllViajes() {
         return viajeRepository.findAll().stream()
-                .map(viaje -> modelMapper.map(viaje, ViajeDTO.class))
+                .map(viaje -> {
+                    ViajeDTO dto = modelMapper.map(viaje, ViajeDTO.class);
+
+                    // Set BusDTO si el bus existe
+                    if (viaje.getBus() != null) {
+                        BusDTO busDTO = new BusDTO();
+                        busDTO.setIdCarro(viaje.getBus().getIdCarro());
+                        busDTO.setPlaca(viaje.getBus().getPlaca());
+
+                        dto.setBusDTO(busDTO);
+                    }
+
+                    // Set RutaDTO si la ruta existe
+                    if (viaje.getRuta() != null) {
+                        Ruta ruta = viaje.getRuta();
+                        RutaDTO rutaDTO = new RutaDTO();
+                        rutaDTO.setIdRuta(ruta.getIdRuta());
+                        rutaDTO.setNombre(ruta.getNombre());
+
+                        if (ruta.getActividad() != null && ruta.getActividad().getAdministrador() != null) {
+                            rutaDTO.setIdAdministrador(ruta.getActividad().getAdministrador().getIdAdministrador());
+                        }
+
+                        dto.setRutaDTO(rutaDTO);
+                    }
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 

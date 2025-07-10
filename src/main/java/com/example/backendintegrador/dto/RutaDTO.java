@@ -21,7 +21,6 @@ public class RutaDTO {
     private Integer idAdministrador;
 
     private List<Integer> agenciasIds;
-    private List<Integer> ordenAgencias;
 
     private List<AgenciaDTO> agenciaDTOS;
 
