@@ -1,6 +1,7 @@
 package com.example.backendintegrador.service;
 
 import com.example.backendintegrador.dto.BusDTO;
+import com.example.backendintegrador.dto.ConductorDTO;
 import com.example.backendintegrador.exception.BusNotFoundException;
 import com.example.backendintegrador.exception.ConductorNotFoundException;
 import com.example.backendintegrador.exception.DuplicatePlacaException;
@@ -45,7 +46,16 @@ public class BusService {
     public List<BusDTO> getAllBuses() {
         return busRepository.findAll().stream()
                 .map(bus -> modelMapper.map(bus, BusDTO.class))
+                .map(busDTO -> {
+                    ConductorDTO conductorDTO = conductorRepository.findById(busDTO.getIdConductor())
+                            .map(conductor -> modelMapper.map(conductor, ConductorDTO.class))
+                            .orElse(null); // o lanza excepción si lo prefieres
+
+                    busDTO.setConductorDTO(conductorDTO);
+                    return busDTO;
+                })
                 .collect(Collectors.toList());
+
     }
 
     public BusDTO getBusById(Integer id) {

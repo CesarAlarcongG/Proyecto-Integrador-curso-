@@ -19,6 +19,8 @@ public class DatosIniciales {
 
     @Bean
     public CommandLineRunner administrador(AdministradorRepository administradorRepository) {
+
+
         return args -> {
             if (administradorRepository.count() == 0) {
                 Administrador usuario = Administrador.builder()

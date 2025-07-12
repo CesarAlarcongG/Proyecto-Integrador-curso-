@@ -17,4 +17,6 @@ public class BusDTO {
 
     @NotNull(message = "El conductor es obligatorio")
     private Integer idConductor;
+
+    private ConductorDTO conductorDTO;
 }

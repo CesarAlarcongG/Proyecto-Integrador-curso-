@@ -10,6 +10,7 @@ import com.example.backendintegrador.persistence.repository.BusRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -85,4 +86,6 @@ public class AsientoService {
                 .map(asiento -> modelMapper.map(asiento, AsientoDTO.class))
                 .collect(Collectors.toList());
     }
+
+
 }

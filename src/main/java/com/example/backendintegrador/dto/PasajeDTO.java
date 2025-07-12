@@ -17,8 +17,7 @@ public class PasajeDTO {
     @Positive(message = "El total a pagar debe ser mayor que cero")
     private Double totalPagar;
 
-    @NotNull(message = "El usuario es obligatorio")
-    private Integer idUsuario;
+    private List<UsuarioDTO> usuarioDTOS;
 
     @NotNull(message = "La ruta es obligatoria")
     private Integer idRuta;

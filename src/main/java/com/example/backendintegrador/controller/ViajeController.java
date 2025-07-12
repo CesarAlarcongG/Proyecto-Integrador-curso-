@@ -48,12 +48,19 @@ public class ViajeController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/buscar")
-    public ResponseEntity<List<ViajeDTO>> buscarViajes(@Valid @RequestBody ViajeBusquedaDTO busquedaDTO) {
-        List<ViajeDTO> viajes = viajeService.buscarViajesPorFechaYRuta(
-                busquedaDTO.getFecha(),
-                busquedaDTO.getIdRuta()
-        );
+    @PostMapping("/buscar-viajes")
+    public ResponseEntity<List<ViajeDTO>> buscarViajes( @Valid @RequestBody ViajeBusquedaDTO busquedaDTO) {
+        List<ViajeDTO> viajes = null;
+
+        if (busquedaDTO.getFecha() != null){
+            viajes = viajeService.buscarViajesPorFechaYRuta(
+                    busquedaDTO.getFecha(),
+                    busquedaDTO.getNombreRuta()
+            );
+        }
+
+        viajes = viajeService.buscarViajesPorNombreRuta(busquedaDTO.getNombreRuta());
+
         return ResponseEntity.ok(viajes);
     }
 }

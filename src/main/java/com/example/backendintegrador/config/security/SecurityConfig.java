@@ -42,11 +42,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/asientos/**").permitAll()
                         .requestMatchers("/api/agencias/**").permitAll()
                         .requestMatchers("/api/rutas/**").permitAll()
                         .requestMatchers("/api/usuarios/**").permitAll()
                         .requestMatchers("/api/pasajes/**").permitAll()
-                        .requestMatchers("/api/viajes/buscar").permitAll()
+                        .requestMatchers("/api/viajes/**").permitAll()
                         .requestMatchers("/api/asientos/disponibles").permitAll()
                         .anyRequest().authenticated()
                 )

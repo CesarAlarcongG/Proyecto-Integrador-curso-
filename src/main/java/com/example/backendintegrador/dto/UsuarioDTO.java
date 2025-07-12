@@ -27,4 +27,6 @@ public class UsuarioDTO {
     private Integer edad;
 
     private String permisos;
+
+    private Integer idAsiento;
 }

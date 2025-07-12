@@ -15,7 +15,6 @@ public class RutaDTO {
 
     private Integer idRuta;
 
-    @NotBlank(message = "El nombre de la ruta es obligatorio")
     private String nombre;
 
     private Integer idAdministrador;

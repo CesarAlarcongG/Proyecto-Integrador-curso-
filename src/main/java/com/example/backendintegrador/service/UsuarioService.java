@@ -26,7 +26,18 @@ public class UsuarioService {
         return modelMapper.map(savedUsuario, UsuarioDTO.class);
     }
 
-    public List<UsuarioDTO> getAllUsuarios() {
+    public List<Usuario> saveAllUsuario(List<UsuarioDTO> usuarioDTOS){
+        List<UsuarioDTO> usuarioDTOSGenerados = usuarioDTOS.stream()
+                .map(usuarioDTO -> saveUsuario(usuarioDTO))
+                .toList();
+
+        List<Usuario> users = usuarioDTOSGenerados.stream()
+                .map(usuarioDTOSGenerado -> modelMapper.map(usuarioDTOSGenerado, Usuario.class))
+                .toList();
+        return users;
+    }
+
+    public List<UsuarioDTO> getAllUsuarios( ) {
         return usuarioRepository.findAll().stream()
                 .map(usuario -> modelMapper.map(usuario, UsuarioDTO.class))
                 .collect(Collectors.toList());

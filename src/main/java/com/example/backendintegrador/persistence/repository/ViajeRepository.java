@@ -13,6 +13,11 @@ import java.util.List;
 public interface ViajeRepository extends JpaRepository<Viaje, Integer> {
 
     // ViajeRepository.java
-    List<Viaje> findByFechaSalidaAndRuta_IdRuta(LocalDate fecha, Integer idRuta);
+    List<Viaje> findByFechaSalidaAndRuta_Nombre(LocalDate fecha, String idRuta);
+
+    List<Viaje> findByRuta_Nombre(String idRuta);
+
+    List<Viaje> findByRuta_IdRuta(Integer idRuta);
+
 
 }

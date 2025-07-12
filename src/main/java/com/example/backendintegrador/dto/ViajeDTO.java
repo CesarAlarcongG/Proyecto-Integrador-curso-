@@ -32,5 +32,9 @@ public class ViajeDTO {
     private Integer idCarro;
 
     private BusDTO busDTO;
+
     private RutaDTO rutaDTO;
+
+    @NotNull(message = "El ESTADO es obligatorio")
+    private String estado;
 }

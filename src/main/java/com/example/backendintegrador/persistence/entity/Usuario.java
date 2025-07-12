@@ -42,8 +42,13 @@ public class Usuario {
     @Column(name = "permisos")
     private String permisos;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // Pasajes son el lado "hijo"
+    @ManyToMany
+    @JoinTable(
+            name = "usuario_pasaje",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_pasaje")
+    )
+    @JsonManagedReference
     private Set<Pasaje> pasajes;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -12,9 +12,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ViajeBusquedaDTO {
 
-    @NotNull(message = "La fecha es obligatoria")
+
     private LocalDate fecha;
 
     @NotNull(message = "La ruta es obligatoria")
-    private Integer idRuta;
+    private String nombreRuta;
 }

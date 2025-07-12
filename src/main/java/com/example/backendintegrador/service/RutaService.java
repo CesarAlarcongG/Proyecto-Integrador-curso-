@@ -46,6 +46,12 @@ public class RutaService {
     public RutaDTO saveRuta(RutaDTO rutaDTO) {
         Actividad actividad = actividadService.generarActividad(rutaDTO.getIdAdministrador(), "El administrador con id"+ rutaDTO.getIdAdministrador()+" generó una nueva ruta");
 
+        rutaDTO.setNombre(obtenernombreRuta(
+                rutaDTO.getAgenciasIds().get(0),
+                rutaDTO.getAgenciasIds().get(rutaDTO.getAgenciasIds().size() - 1)
+        ));
+
+
         Ruta ruta = modelMapper.map(rutaDTO, Ruta.class);
         ruta.setActividad(actividad);
         Ruta savedRuta = rutaRepository.save(ruta);
@@ -265,6 +271,15 @@ public class RutaService {
          */
 
         return dto;
+    }
+
+    public String obtenernombreRuta(Integer primero, Integer ultimo){
+
+        Agencia agenciaPartida = agenciaRepository.findById(primero).get();
+
+        Agencia agenciaDestino = agenciaRepository.findById(ultimo).get();
+
+        return agenciaPartida.getDepartamento() + "-"+agenciaDestino.getDepartamento();
     }
 
 

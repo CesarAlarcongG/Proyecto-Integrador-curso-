@@ -28,13 +28,13 @@ public class Asiento {
     @Column(name = "piso", nullable = false)
     private Integer piso;
 
-    @NotBlank(message = "El número de asiento es obligatorio")
-    @Column(name = "asiento", nullable = false)
-    private String asiento;
+    @NotBlank(message = "La columna es obligatorio")
+    @Column(name = "columna", nullable = false)
+    private String columna;
 
-    @PositiveOrZero(message = "El precio no puede ser negativo")
-    @Column(name = "precio", nullable = false)
-    private Double precio;
+    @NotBlank(message = "La fila es obligatorio")
+    @Column(name = "fila", nullable = false)
+    private String fila;
 
     @Column(name = "descripcion")
     private String descripcion;

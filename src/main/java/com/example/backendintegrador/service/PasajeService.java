@@ -22,6 +22,9 @@ public class PasajeService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
     private RutaRepository rutaRepository;
 
     @Autowired
@@ -38,45 +41,55 @@ public class PasajeService {
 
     @Transactional
     public PasajeDTO savePasaje(PasajeDTO pasajeDTO) {
-        Usuario usuario = usuarioRepository.findById(pasajeDTO.getIdUsuario())
-                .orElseThrow(() -> new UsuarioNotFoundException("Usuario no encontrado con id: " + pasajeDTO.getIdUsuario()));
-
-        Ruta ruta = rutaRepository.findById(pasajeDTO.getIdRuta())
-                .orElseThrow(() -> new RutaNotFoundException("Ruta no encontrada con id: " + pasajeDTO.getIdRuta()));
-
+        // Obtener el viaje
         Viaje viaje = viajeRepository.findById(pasajeDTO.getIdViaje())
                 .orElseThrow(() -> new ViajeNotFoundException("Viaje no encontrado con id: " + pasajeDTO.getIdViaje()));
 
+        // Obtener usuarios
+        List<Usuario> usuarios = usuarioService.saveAllUsuario(pasajeDTO.getUsuarioDTOS());
+
+        // Obtener ruta
+        Ruta ruta = rutaRepository.findById(pasajeDTO.getIdRuta())
+                .orElseThrow(() -> new RutaNotFoundException("Ruta no encontrada con id: " + pasajeDTO.getIdRuta()));
+
+        // Verificación de tamaño de listas
+        List<Integer> asientoIds = pasajeDTO.getAsientosIds();
+        if (asientoIds.size() != usuarios.size()) {
+            throw new IllegalArgumentException("La cantidad de usuarios y asientos debe ser igual");
+        }
+
+        // Crear y guardar pasaje
         Pasaje pasaje = modelMapper.map(pasajeDTO, Pasaje.class);
-        pasaje.setUsuario(usuario);
+        pasaje.setUsuario(usuarios);
         pasaje.setRuta(ruta);
         pasaje.setViaje(viaje);
         Pasaje savedPasaje = pasajeRepository.save(pasaje);
 
-        // Guardar relaciones Usuario-Asiento
-        if (pasajeDTO.getAsientosIds() != null) {
-            for (Integer asientoId : pasajeDTO.getAsientosIds()) {
-                Asiento asiento = asientoRepository.findById(asientoId)
-                        .orElseThrow(() -> new AsientoNotFoundException("Asiento no encontrado con id: " + asientoId));
+        // Crear y guardar relación usuario-asiento
+        for (int i = 0; i < usuarios.size(); i++) {
+            Usuario usuario = usuarios.get(i);
+            Integer asientoId = asientoIds.get(i);
 
-                if (!"disponible".equalsIgnoreCase(asiento.getEstado())) {
-                    throw new AsientoNoDisponibleException("El asiento con id " + asientoId + " no está disponible");
-                }
+            Asiento asiento = asientoRepository.findById(asientoId)
+                    .orElseThrow(() -> new AsientoNotFoundException("Asiento no encontrado con id: " + asientoId));
 
-                UsuarioAsiento usuarioAsiento = new UsuarioAsiento();
-                usuarioAsiento.setUsuario(usuario);
-                usuarioAsiento.setAsiento(asiento);
-                usuarioAsiento.setPasaje(savedPasaje);
-                usuarioAsientoRepository.save(usuarioAsiento);
-
-                // Actualizar estado del asiento
-                asiento.setEstado("ocupado");
-                asientoRepository.save(asiento);
+            if (!"disponible".equalsIgnoreCase(asiento.getEstado())) {
+                throw new AsientoNoDisponibleException("El asiento con id " + asientoId + " no está disponible");
             }
+
+            UsuarioAsiento usuarioAsiento = new UsuarioAsiento();
+            usuarioAsiento.setUsuario(usuario);
+            usuarioAsiento.setAsiento(asiento);
+            usuarioAsiento.setPasaje(savedPasaje);
+            usuarioAsientoRepository.save(usuarioAsiento);
+
+            asiento.setEstado("ocupado");
+            asientoRepository.save(asiento);
         }
 
         return modelMapper.map(savedPasaje, PasajeDTO.class);
     }
+
 
     public List<PasajeDTO> getAllPasajes() {
         return pasajeRepository.findAll().stream()

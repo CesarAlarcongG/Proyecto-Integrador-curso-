@@ -1,7 +1,9 @@
 package com.example.backendintegrador.service;
 
 import com.example.backendintegrador.exception.PDFGenerationException;
+import com.example.backendintegrador.persistence.entity.Asiento;
 import com.example.backendintegrador.persistence.entity.Pasaje;
+import com.example.backendintegrador.persistence.entity.Usuario;
 import com.example.backendintegrador.persistence.entity.UsuarioAsiento;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
@@ -16,7 +18,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Service
 public class PDFService {
@@ -39,7 +44,6 @@ public class PDFService {
 
             Document document = new Document();
             PdfWriter.getInstance(document, new FileOutputStream(filePath));
-
             document.open();
 
             // Título
@@ -49,56 +53,34 @@ public class PDFService {
             title.setSpacingAfter(20);
             document.add(title);
 
-            // Información del pasaje
+            // Fuente para texto normal
             Font infoFont = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
 
-            Paragraph p1 = new Paragraph();
-            p1.add(new Chunk("Número de boleto: ", infoFont));
-            p1.add(new Chunk(pasaje.getIdPasaje().toString(), infoFont));
-            p1.setSpacingAfter(10);
-            document.add(p1);
+            // Datos generales del pasaje
+            document.add(new Paragraph("Número de boleto: " + pasaje.getIdPasaje(), infoFont));
+            document.add(new Paragraph("Fecha de emisión: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()), infoFont));
+            document.add(new Paragraph("Ruta: " + pasaje.getRuta().getNombre(), infoFont));
+            document.add(new Paragraph("Fecha de viaje: " + pasaje.getViaje().getFechaSalida(), infoFont));
+            document.add(new Paragraph("Hora de salida: " + pasaje.getViaje().getHoraSalida(), infoFont));
+            document.add(new Paragraph("Total pagado: S/ " + String.format("%.2f", pasaje.getTotalPagar()), infoFont));
+            document.add(new Paragraph(" ", infoFont));
 
-            Paragraph p2 = new Paragraph();
-            p2.add(new Chunk("Fecha de emisión: ", infoFont));
-            p2.add(new Chunk(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()), infoFont));
-            p2.setSpacingAfter(10);
-            document.add(p2);
+            // Pasajeros
+            Paragraph pasajeroTitle = new Paragraph("Pasajeros:", infoFont);
+            pasajeroTitle.setSpacingBefore(10);
+            pasajeroTitle.setSpacingAfter(5);
+            document.add(pasajeroTitle);
 
-            Paragraph p3 = new Paragraph();
-            p3.add(new Chunk("Ruta: ", infoFont));
-            p3.add(new Chunk(pasaje.getRuta().getNombre(), infoFont));
-            p3.setSpacingAfter(10);
-            document.add(p3);
+            Set<Usuario> pasajeros = new HashSet<>();
+            for (UsuarioAsiento ua : usuarioAsientos) {
+                pasajeros.add(ua.getUsuario());
+            }
 
-            Paragraph p4 = new Paragraph();
-            p4.add(new Chunk("Fecha de viaje: ", infoFont));
-            p4.add(new Chunk(pasaje.getViaje().getFechaSalida().toString(), infoFont));
-            p4.setSpacingAfter(10);
-            document.add(p4);
+            for (Usuario u : pasajeros) {
+                document.add(new Paragraph("- " + u.getNombres() + " " + u.getApellidos() + " (DNI: " + u.getDni() + ")", infoFont));
+            }
 
-            Paragraph p5 = new Paragraph();
-            p5.add(new Chunk("Hora de salida: ", infoFont));
-            p5.add(new Chunk(pasaje.getViaje().getHoraSalida().toString(), infoFont));
-            p5.setSpacingAfter(10);
-            document.add(p5);
-
-            Paragraph p6 = new Paragraph();
-            p6.add(new Chunk("Pasajero: ", infoFont));
-            p6.add(new Chunk(pasaje.getUsuario().getNombres() + " " + pasaje.getUsuario().getApellidos(), infoFont));
-            p6.setSpacingAfter(10);
-            document.add(p6);
-
-            Paragraph p7 = new Paragraph();
-            p7.add(new Chunk("DNI: ", infoFont));
-            p7.add(new Chunk(pasaje.getUsuario().getDni(), infoFont));
-            p7.setSpacingAfter(10);
-            document.add(p7);
-
-            Paragraph p8 = new Paragraph();
-            p8.add(new Chunk("Total pagado: S/ ", infoFont));
-            p8.add(new Chunk(String.format("%.2f", pasaje.getTotalPagar()), infoFont));
-            p8.setSpacingAfter(20);
-            document.add(p8);
+            document.add(new Paragraph(" ", infoFont));
 
             // Tabla de asientos
             PdfPTable table = new PdfPTable(3);
@@ -106,37 +88,29 @@ public class PDFService {
             table.setSpacingBefore(10);
             table.setSpacingAfter(20);
 
-            // Encabezados de la tabla
-            PdfPCell cell1 = new PdfPCell(new Phrase("Asiento", infoFont));
-            PdfPCell cell2 = new PdfPCell(new Phrase("Piso", infoFont));
-            PdfPCell cell3 = new PdfPCell(new Phrase("Precio", infoFont));
+            // Cabeceras
+            Stream.of("Asiento", "Piso", "Precio").forEach(header -> {
+                PdfPCell cell = new PdfPCell(new Phrase(header, infoFont));
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cell);
+            });
 
-            cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell2.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell3.setHorizontalAlignment(Element.ALIGN_CENTER);
-
-            table.addCell(cell1);
-            table.addCell(cell2);
-            table.addCell(cell3);
-
-            // Datos de la tabla
             for (UsuarioAsiento ua : usuarioAsientos) {
-                table.addCell(ua.getAsiento().getAsiento());
-                table.addCell(ua.getAsiento().getPiso().toString());
-                table.addCell("S/ " + String.format("%.2f", ua.getAsiento().getPrecio()));
+                Asiento a = ua.getAsiento();
+                table.addCell(a.getColumna() + a.getFila());
+                table.addCell(a.getPiso().toString());
             }
 
             document.add(table);
 
-            // Código de barras (simulado)
-            Paragraph barcode = new Paragraph("Código de boleto: " + pasaje.getIdPasaje() + "-" +
-                    pasaje.getUsuario().getDni(), infoFont);
+            // Código de boleto
+            Paragraph barcode = new Paragraph("Código de boleto: " + pasaje.getIdPasaje(), infoFont);
             barcode.setAlignment(Element.ALIGN_CENTER);
             document.add(barcode);
 
             document.close();
-
             return filePath;
+
         } catch (DocumentException | IOException e) {
             throw new PDFGenerationException("Error al generar el PDF del boleto: " + e.getMessage());
         }

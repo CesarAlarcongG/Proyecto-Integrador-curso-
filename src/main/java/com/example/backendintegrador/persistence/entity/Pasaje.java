@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -27,10 +28,9 @@ public class Pasaje {
     private Double totalPagar;
 
     @NotNull(message = "El usuario es obligatorio")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable = false)
-    @JsonBackReference // Usuario es el lado "padre"
-    private Usuario usuario;
+    @ManyToMany(mappedBy = "pasajes", fetch = FetchType.LAZY)
+    @JsonBackReference
+    private List<Usuario> usuario;
 
     @NotNull(message = "La ruta es obligatoria")
     @ManyToOne(fetch = FetchType.LAZY)

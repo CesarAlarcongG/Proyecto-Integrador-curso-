@@ -17,16 +17,18 @@ public class AsientoDTO {
     @Max(value = 2, message = "El piso máximo es 2")
     private Integer piso;
 
-    @NotBlank(message = "El número de asiento es obligatorio")
-    private String asiento;
+    @NotBlank(message = "El posición de la columna es obligatoria")
+    private String columna;
 
-    @PositiveOrZero(message = "El precio no puede ser negativo")
-    private Double precio;
+    @NotBlank(message = "El posición de la fila es obligatoria")
+    private String fila;
 
+    @NotBlank(message = "L descripción es obligatoria")
     private String descripcion;
 
     @NotBlank(message = "El estado es obligatorio")
     private String estado;
 
+    @NotNull(message = "El id bus es obligatorio")
     private Integer idBus;
 }

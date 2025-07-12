@@ -52,4 +52,6 @@ public class Viaje {
     @OneToMany(mappedBy = "viaje", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // Pasajes son el lado "hijo"
     private Set<Pasaje> pasajes;
+
+    private String estado;
 }
