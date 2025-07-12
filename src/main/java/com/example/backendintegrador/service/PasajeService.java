@@ -39,6 +39,10 @@ public class PasajeService {
     @Autowired
     private ModelMapper modelMapper;
 
+    // Ya no es necesario inyectar PDFService aquí si solo se usa en el controlador para generar el PDF bajo demanda.
+    // @Autowired
+    // private PDFService pdfService;
+
     @Transactional
     public PasajeDTO savePasaje(PasajeDTO pasajeDTO) {
         // Obtener el viaje
@@ -102,6 +106,28 @@ public class PasajeService {
                 .orElseThrow(() -> new PasajeNotFoundException("Pasaje no encontrado con id: " + id));
         return modelMapper.map(pasaje, PasajeDTO.class);
     }
+
+    /**
+     * Obtiene la entidad Pasaje por su ID.
+     * Este método es útil para operaciones internas que requieren la entidad completa.
+     * @param id El ID del pasaje.
+     * @return La entidad Pasaje.
+     * @throws PasajeNotFoundException si el pasaje no se encuentra.
+     */
+    public Pasaje getPasajeEntityById(Integer id) {
+        return pasajeRepository.findById(id)
+                .orElseThrow(() -> new PasajeNotFoundException("Pasaje no encontrado con id: " + id));
+    }
+
+    /**
+     * Obtiene la lista de relaciones UsuarioAsiento para un pasaje específico.
+     * @param pasajeId El ID del pasaje.
+     * @return Una lista de UsuarioAsiento.
+     */
+    public List<UsuarioAsiento> getUsuarioAsientosByPasajeId(Integer pasajeId) {
+        return usuarioAsientoRepository.findByPasajeIdPasaje(pasajeId);
+    }
+
 
     @Transactional
     public void deletePasaje(Integer id) {
