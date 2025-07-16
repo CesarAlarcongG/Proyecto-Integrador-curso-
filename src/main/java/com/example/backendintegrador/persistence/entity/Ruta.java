@@ -32,7 +32,7 @@ public class Ruta {
     @JoinColumn(name = "id_actividad", nullable = false)
     private Actividad actividad;
 
-    @OneToMany(mappedBy = "ruta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "ruta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     private Set<RutaAgencia> rutaAgencias;
 

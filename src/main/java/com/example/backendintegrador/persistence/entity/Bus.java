@@ -24,14 +24,11 @@ public class Bus {
     @Column(name = "id_carro")
     private Integer idCarro;
 
-    @NotBlank(message = "La placa es obligatoria")
-    @Column(name = "placa", nullable = false, unique = true)
+    @Column(name = "placa", unique = true, nullable = false)
     private String placa;
 
-    @NotNull(message = "El conductor es obligatorio")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_conductor", nullable = false)
-    @JsonBackReference // Conductor es el lado "padre"
     private Conductor conductor;
 
     @OneToMany(mappedBy = "bus", cascade = CascadeType.ALL, orphanRemoval = true)

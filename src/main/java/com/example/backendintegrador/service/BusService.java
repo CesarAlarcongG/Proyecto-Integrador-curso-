@@ -75,18 +75,31 @@ public class BusService {
                 .orElseThrow(() -> new BusNotFoundException("Bus no encontrado con id: " + id));
 
         // Verificar si la placa ya existe (excluyendo la actual)
-        if (!existingBus.getPlaca().equals(busDTO.getPlaca()) &&
-                busRepository.existsByPlaca(busDTO.getPlaca())) {
-            throw new DuplicatePlacaException("Ya existe un bus con la placa: " + busDTO.getPlaca());
+        if (!existingBus.getPlaca().equals(busDTO.getPlaca())) {
+            busRepository.findByPlaca(busDTO.getPlaca())
+                    .ifPresent(b -> {
+                        if (!b.getIdCarro().equals(id)) {
+                            throw new DuplicatePlacaException("Ya existe un bus con la placa: " + busDTO.getPlaca());
+                        }
+                    });
         }
 
+        // Obtener conductor
         Conductor conductor = conductorRepository.findById(busDTO.getIdConductor())
                 .orElseThrow(() -> new ConductorNotFoundException("Conductor no encontrado con id: " + busDTO.getIdConductor()));
 
-        modelMapper.map(busDTO, existingBus);
+        // Actualizar solo los campos necesarios
+        existingBus.setPlaca(busDTO.getPlaca());
         existingBus.setConductor(conductor);
+
+        // Guardar cambios
         Bus updatedBus = busRepository.save(existingBus);
-        return modelMapper.map(updatedBus, BusDTO.class);
+
+        // Mapear a DTO para respuesta
+        BusDTO responseDTO = modelMapper.map(updatedBus, BusDTO.class);
+        responseDTO.setConductorDTO(modelMapper.map(conductor, ConductorDTO.class));
+
+        return responseDTO;
     }
 
     public void deleteBus(Integer id) {

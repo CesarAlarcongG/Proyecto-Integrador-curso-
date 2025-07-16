@@ -170,37 +170,39 @@ public class RutaService {
         Ruta existingRuta = rutaRepository.findById(id)
                 .orElseThrow(() -> new RutaNotFoundException("Ruta no encontrada con id: " + id));
 
-        Actividad actividad = actividadService.generarActividad(rutaDTO.getIdAdministrador(), "El administrador con id"+ rutaDTO.getIdAdministrador()+" actualizó la ruta");
+        Actividad actividad = actividadService.generarActividad(rutaDTO.getIdAdministrador(),
+                "El administrador con id "+ rutaDTO.getIdAdministrador()+" actualizó la ruta");
 
-        modelMapper.map(rutaDTO, existingRuta);
+        // Actualizar campos básicos
+        existingRuta.setNombre(obtenernombreRuta(
+                rutaDTO.getAgenciasIds().get(0),
+                rutaDTO.getAgenciasIds().get(rutaDTO.getAgenciasIds().size() - 1)
+        ));
         existingRuta.setActividad(actividad);
-        Ruta updatedRuta = rutaRepository.save(existingRuta);
 
-        // Actualizar relaciones Ruta-Agencia
-        if (rutaDTO.getAgenciasIds() != null ) {
-
-            // Eliminar relaciones existentes
-            rutaAgenciaRepository.deleteByRutaIdRuta(updatedRuta.getIdRuta());
+        // Manejo de las relaciones Ruta-Agencia
+        if (rutaDTO.getAgenciasIds() != null) {
+            // Limpiar la colección existente correctamente
+            existingRuta.getRutaAgencias().clear();
 
             // Crear nuevas relaciones
-            List<RutaAgencia> rutaAgencias = new ArrayList<>();
             for (int i = 0; i < rutaDTO.getAgenciasIds().size(); i++) {
                 Integer agenciaId = rutaDTO.getAgenciasIds().get(i);
                 Agencia agencia = agenciaRepository.findById(agenciaId)
                         .orElseThrow(() -> new AgenciaNotFoundException("Agencia no encontrada con id: " + agenciaId));
 
                 RutaAgencia rutaAgencia = new RutaAgencia();
-                rutaAgencia.setId(new RutaAgencia.RutaAgenciaId(updatedRuta.getIdRuta(), agencia.getIdAgencia()));
-                rutaAgencia.setRuta(updatedRuta);
+                rutaAgencia.setId(new RutaAgencia.RutaAgenciaId(existingRuta.getIdRuta(), agencia.getIdAgencia()));
+                rutaAgencia.setRuta(existingRuta);
                 rutaAgencia.setAgencia(agencia);
-                rutaAgencia.setOrden(i++);
+                rutaAgencia.setOrden(i);
 
-                rutaAgencias.add(rutaAgencia);
+                existingRuta.getRutaAgencias().add(rutaAgencia);
             }
-
-            rutaAgenciaRepository.saveAll(rutaAgencias);
         }
 
+        // Guardar la entidad actualizada
+        Ruta updatedRuta = rutaRepository.save(existingRuta);
         return modelMapper.map(updatedRuta, RutaDTO.class);
     }
 

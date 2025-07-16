@@ -14,7 +14,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RutaAgencia implements Comparable<RutaAgencia> {
-
     @EmbeddedId
     private RutaAgenciaId id;
 
@@ -34,7 +33,7 @@ public class RutaAgencia implements Comparable<RutaAgencia> {
 
     @Override
     public int compareTo(RutaAgencia otra) {
-        return Integer.compare(this.orden, otra.orden);
+        return this.orden.compareTo(otra.orden);
     }
 
     @Embeddable
